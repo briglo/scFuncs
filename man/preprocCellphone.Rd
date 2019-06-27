@@ -21,6 +21,6 @@ takes CellPhoneDB output and turns it into something useable
 }
 \examples{
 cd("PATH/TO/CELLPHONEDB/OUT/small")
-x<-preprocCellphone(varval=0,pval=2)
+x<-preprocCellphone(varval=0,pval=.05)
 
 }

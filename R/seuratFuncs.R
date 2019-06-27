@@ -311,7 +311,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 #'
 #' @examples
 #' cd("PATH/TO/CELLPHONEDB/OUT/small")
-#' x<-preprocCellphone(varval=0,pval=2)
+#' x<-preprocCellphone(varval=0,pval=.05)
 #' 
 #' @export	 
 preprocCellphone<-function(prefix,pval=0.01,varval=0){

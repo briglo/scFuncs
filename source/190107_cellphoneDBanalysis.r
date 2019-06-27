@@ -81,6 +81,7 @@ source<-unlist(lapply(strsplit(colnames(rex),"_"), function(x) paste0(x[1],"_",x
 
 con<-lapply(seq(0,1,.1), function(x) colSums(rex>x))
 y<-data.frame(source,target,do.call(cbind,con))
+
 colnames(y)[3:13]<-paste0('countAboveMean',seq(0,1,.1))
 
 p<-lapply(colnames(y)[3:13], function(cutoff){
