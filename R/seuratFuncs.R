@@ -8,9 +8,11 @@ library(Matrix)
 library(phateR)
 library(Seurat)
 library(reticulate)
-library(scGPS)
+library(matrixStats)
+#library(scGPS)
 library(locfit) #required but not dependency
 library(e1071)
+library(RColorBrewer)
 use_python("/share/ClusterShare/software/contrib/briglo/miniconda3/envs/magic/bin/python")
 
 
@@ -32,6 +34,8 @@ use_python("/share/ClusterShare/software/contrib/briglo/miniconda3/envs/magic/bi
 #'
 #' @export
 buildMasterSeurat<-function(seuratList,ndims=1:30,mt.cutoff=10,regress.cell.cycle=TRUE,res.vec=c(seq(0,1,0.1),1.5,2)){
+    require(Seurat)
+    data(cell.cyclegenes)
 anchors <- FindIntegrationAnchors(object.list = seuratList, dims = ndims)
 integrated <- IntegrateData(anchorset = anchors, dims = ndims) #this takes ages
 integrated@active.assay="RNA"
@@ -95,37 +99,86 @@ return(HSMM)
 
 #' seurat2magic
 #'
-#' turns a Seurat object into a default magic/phate resuly
+#' turns a Seurat object into a default magic/phate result
 #'
 #' @param seuratObj the Seurat object
-#' @param geneList list of genes to calculate magic for default to a handfull of EMT genes
+#' @param geneList a vector of gene symbols
+#' @param return.raw logical, return MAGIC object for init, default FALSE
 #'
 #' @return a matrix of MAGIC expression
 #'
 #' @examples
-#' NULL
+#' magicRand<-seurat2magic(seuratObj=integrated,geneList=sample(rownames(integrated@assays$SCT@scale.data),10),return.raw=F)
 #'
 #' @export
-seurat2magic<-function(seuratObj,geneList=c("ZEB1","SNAI1",'SNAI2',"VIM")){
+seurat2magic<-function(seuratObj,geneList=c("ZEB1","SNAI1",'SNAI2',"VIM"),return.raw=FALSE){
 
+require(Seurat)
+require(Rmagic)
+require(Matrix)
+message("building data object, this will be a while coz i dont optimise these things \n in fact im going to have a shower right now")
 dat<-t(integrated@assays$RNA@counts)
 metadat<-integrated@meta.data
 keep_cols <- colSums(dat > 0) > 10
 dat <- dat[,keep_cols]
+message(sum(keep_cols),' out of ', length(keep_cols)," genes retained (",round(sum(keep_cols)/length(keep_cols),3),")")
   keep_rows <- Matrix::rowSums(dat) > 1000 & Matrix::rowSums(dat) < 25000
   dat <- dat[keep_rows,]
+message(sum(keep_rows),' out of ', length(keep_rows)," cells retained (",round(sum(keep_rows)/length(keep_rows),3),")")
 dat <- library.size.normalize(dat)
 dat <- sqrt(dat)
 
+message("running MAGIC")
 data_MAGIC_all <- magic(dat, k=15, genes=geneList)
+message("making MAGIC_PCA")
 data_MAGIC_PCA <- magic(dat, genes="pca_only", 
                          t=4, init=data_MAGIC)
+ message("running PHATE")                        
 data_PHATE <- phate(dat, knn=4, decay=100, t=20)
 tmp<- data.frame(cbind(data_MAGIC$result,data_MAGIC_PCA$result[,1:3],data_PHATE$embedding))
 colnames(tmp)<-paste0("MAGIC_",colnames(tmp))
-return(tmp)
+if(return.raw) return(data_MAGIC_all) else return(tmp)
 }
 
+#' subsetSeurat2cellPhone
+#'
+#' trims a seurat object to a smaller number of cells (ranked by number of genes expressed) per user defined cluster. writes out text files for cellphoneDB. Makes cellphoneDB a little quicker to run
+#'
+#' @param seuratObj the Seurat object
+#' @param annoColumn name of metadata column you want
+#' @param no.cells the number of cells per cluster you want
+#' @param prefix file prefix for writing out data for cellphoneDB
+#'
+#' @return invisible(trimmedSeurat)
+#'
+#' @examples
+#' ti<-subsetSeurat2cellPhone(seuratObj=integrated,annoColumn="SCT_snn_res.0.15",no.cells=50,prefix="small")
+#' 
+#' #on cluster
+#' module load briglo/miniconda/3
+#' source activate cellphone
+#' qsub -V -cwd -b y -j y -pe smp 8 -N cpdb_1 "cellphonedb method statistical_analysis small_meta.txt small_counts.txt --project-name small --threshold 10 --threads 8"
+#' EASY!!!
+#'
+#' @export
+subsetSeurat2cellPhone<-function(seuratObj,annoColumn,no.cells,prefix) {
+seuratObj@meta.data$newAnno<-paste0(prefix,"_",as.character(seuratObj@meta.data[,annoColumn]))
+seuratObj<-SetIdent(seuratObj,value=seuratObj@meta.data$newAnno)
+x<-seuratObj@meta.data[,c('nFeature_RNA','newAnno')]
+sx<-split(x,x$newAnno)
+osx<-lapply(sx, function(x) x[order(x$nFeature_RNA,decreasing=T),])
+cells.use<-as.character(unlist(lapply(osx, function(x) head(rownames(x),no.cells))))
+trimSeuratObject<-subset(seuratObj, cells=cells.use)
+mappers<-getEntrez(trimSeuratObject,'all')
+ 
+ da<-trimSeuratObject@assays$SCT@data[rownames(trimSeuratObject@assays$SCT@data) %in% mappers$hgnc_symbol[!is.na(mappers$ensembl_gene_id)],]
+ m<-match(rownames(da),mappers$hgnc_symbol)
+ rownames(da)<-mappers$ensembl_gene_id[m]
+cd<-data.frame(Cell=rownames(trimSeuratObject@meta.data),cell_type=trimSeuratObject@meta.data$newAnno)
+write.table(data.matrix(da),file=paste0(prefix,"_counts.txt"),quote=F,sep='\t')
+ write.table(cd,file=paste0(prefix,"_meta.txt"),quote=F,sep='\t',row.names=F)
+return(invisible(trimSeuratObject))
+}
 
 #' makeMetaScore
 #'
@@ -137,7 +190,7 @@ return(tmp)
 #' @return a dataframe of metadata +/- coords and metascore
 #'
 #' @examples
-#' integrated<-plotMetaScore(integrated,sample(rownames(integrated@assays$SCT@scale.data),10))
+#' integrated<-makeMetaScore(integrated,sample(rownames(integrated@assays$SCT@scale.data),10))
 #' ggplot(integrated@meta.data,aes(x=UMAP_1,y=UMAP_2,color=metascore)) + geom_point(alpha=.5) + scale_colour_gradientn(colours = jet.colors(7))
 #'
 #' @export
@@ -146,7 +199,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
     require(ggplot2) # just to make sure can plot
     require(matlab) # for the jet color palette
     require(dplyr) # for the gene contribution transformation
-    message(table(geneList %in% rownames(seuratObj@assays$integrated@scale.data))['TRUE']," out of ",length(geneList)," genes entered were used to generate score\n") # just shows how many are actually contributing to the score
+ message(table(geneList %in% rownames(seuratObj@assays$integrated@scale.data))['TRUE']," out of ",length(geneList)," genes entered were used to generate score\n") # just shows how many are actually contributing to the score
     hm<-matrixStats::rowVars(seuratObj@assays$SCT@scale.data[rownames(seuratObj@assays$SCT@scale.data) %in% geneList,])
     names(hm)<-rownames(seuratObj@assays$SCT@scale.data[rownames(seuratObj@assays$SCT@scale.data) %in% geneList,])
     message("top 10 contributing genes (by percentage) contributing to signature")
@@ -165,7 +218,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 #' @param seuratObj the Seurat object
 #' @param geneList list of genes to calculate magic for default variable genes from SCT
 #'
-#' @return a matrix of MAGIC expression
+#' @return a dataframe of gene symbol and entrezID
 #'
 #' @examples
 #' hasEntrez<-getEntrez(integrated)
@@ -179,7 +232,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 	 if (geneList=="var.genes") {
 	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene","hgnc_symbol"),filters="hgnc_symbol",values=integrated@assays$SCT@var.features,mart=human))
 	 } else {
-	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene","hgnc_symbol"),filters="hgnc_symbol",values=rownames(integrated@assays$SCT$data),mart=human))
+	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene","hgnc_symbol"),filters="hgnc_symbol",values=rownames(integrated@assays$SCT@data),mart=human))
 	 }
 	 }#
 
@@ -246,28 +299,28 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 
 
 
-########up to here
-
-#' seurat2magic
+#' preprocCellPhone
 #'
-#' turns a Seurat object into a default magic/phate resuly
+#' takes CellPhoneDB output and turns it into something useable
 #'
-#' @param seuratObj the Seurat object
-#' @param geneList list of genes to calculate magic for default to a handfull of EMT genes
+#' @param dir the directory containing cellPhoneDB output, defaults to .
+#' @param pval p value cutoff for reporting an interaction, default 0.01
+#' @param varval variance value cutoff for retaining interactions that are different between conditions, default 0
 #'
-#' @return a matrix of MAGIC expression
+#' @return a list containing raw data trimmed for 0 and one trimmed for p and var (plotdat)
 #'
 #' @examples
-#' NULL
-#'
+#' cd("PATH/TO/CELLPHONEDB/OUT/small")
+#' x<-preprocCellphone(varval=0,pval=2)
+#' 
 #' @export	 
-
-preprocCellphone<-function(pval=0.01,varval=0.05){
-message("you should have run this in an cellphone results directory")
+preprocCellphone<-function(prefix,pval=0.01,varval=0){
+    require(matrixStats)
+message("you should run this in an cellphone results directory")
 message("pval cutoff=",pval)
 message("variation value=",varval)
 
-fnam<-c(pval='pvalues.txt',mean="means.txt")
+fnam<-c(pval="pvalues.txt",mean='means.txt')
 dat<-lapply(fnam,function(x) read.table(x, header=T, stringsAsFactors = F, sep='\t', comment.char = ''))
 dat<-lapply(dat,function(x){
 rownames(x) = x$interacting_pair
@@ -276,44 +329,53 @@ x<-x[,-c(1:9)]
 tdat<-lapply(dat,function(x) x[rowSums(dat$pval<pval)>0,colSums(dat$pval<pval)>0])
 tmp<-tdat$mean
 tmp[tdat$pval>pval]=0
-tdat$plotdat<-tmp[matrixStats::rowVars(data.matrix(tmp))>varval,]
+trimdat<-tmp[matrixStats::rowVars(data.matrix(tmp))>varval,]
+target<-unlist(lapply(strsplit(colnames(trimdat),"_"), function(x) paste0(x[3],"_",x[4])))
+source<-unlist(lapply(strsplit(colnames(trimdat),"_"), function(x) paste0(x[1],"_",x[2])))
+df<-data.frame(target,source,stringsAsFactors=F)
+con<-lapply(seq(0,1,.1), function(y) colSums(x>y))
+names(con)<-paste0('countAboveMean',seq(0,1,.1))
+tdat$countdat<-data.frame(source,target,do.call(cbind,con))
 #print(pheatmap::pheatmap(data.matrix(tdat$plodat))) #this needs a big display object
 return(invisible(tdat))
 }
 
-#' seurat2magic
+
+#' intgraph
 #'
-#' turns a Seurat object into a default magic/phate resuly
+#' takes a preprocCellphone$countdat object and plots a graph
 #'
-#' @param seuratObj the Seurat object
-#' @param geneList list of genes to calculate magic for default to a handfull of EMT genes
+#' @param cellphoneDB_data the countdat output from plotdat object
+#' @param scoreCut mean score cutoff to use (seq(0,1,0.1)), default 0.3
+#' @param numberCut the number of interactions required to be plotted, default 0
+#' @param numberSplit the number of interactions to distinguish high from low, default 35
 #'
-#' @return a matrix of MAGIC expression
+#' @return invisible list of plot objects
 #'
 #' @examples
-#' NULL
+#' intgraph(x$countdat)
 #'
 #' @export	 
 
-intgraph<- function(scoremat=df,scoreCut=0.3, numberCut=0, numberSplit=35){
-   require(ggraph)
+intgraph<- function(cellphoneDB_data,scoreCut=0.3, numberCut=0, numberSplit=35){
+require(ggraph)
    require(dplyr)
    require(igraph)
    require(cowplot)
    message("use like this: intgraph(scoreCut=0.3, numberCut=0, numberSplit=35)")
- tmp<-scoremat[scoremat[,paste0("meancut_",scoreCut)]>numberCut,c('source','target',paste0("meancut_",scoreCut))]
+ tmp<-cellphoneDB_data[cellphoneDB_data[,paste0("countAboveMean",scoreCut)]>numberCut,c('source','target',paste0("countAboveMean",scoreCut))]
  colnames(tmp)[3]<-"score"
- an<-data.frame(ID=unique(c(scoremat$source,scoremat$target)))
- gr<-graph_from_data_frame(tmp,directed = T,vertices=an)
+ an<-data.frame(ID=unique(c(tmp$source,tmp$target)))
+ gr<-graph_from_data_frame(tmp,directed = F,vertices=an)
  deg=degree(gr, mode ="all")
  
- colname<-paste0("countAboveMean",numberCut)
-  mypalette <- palette(brewer.pal(n=10,name='Paired'))[c(6,8,4,2,10,7,3,1,9)]
-  V(gr)$color=mypalette
-  plot(gr,arrow.size=.2,edve.curved=-.1,edge.width=E(gr)$score)#,vertex.color=V(gr)$color)
-  # ggraph(gr, layout = 'linear')  +     geom_edge_arc(aes(width =score,alpha=score>numberSplit)) + geom_node_point()
-   
-   #aes(color=ID,shape=type,size=count)) + geom_node_label(aes(label=ID),label.size=.2,nudge_y=-1) + coord_flip() + ggtitle(paste0("scoreCut=",scoreCut, ", numberCut=",numberCut,", numberSplit=",numberSplit))
-   #p2<-ggplot(tmp,aes(x=score)) + geom_bar()
-   #ggdraw() + draw_plot(p1 + theme(legend.justification="bottom"), 0,0,1,1) + draw_plot(p2 + geom_vline(xintercept=numberSplit) ,0.75, 0.7, 0.2, 0.3)
+   p1<-ggraph(gr, layout = 'linear', circular=T) +     geom_edge_arc(aes(width =score,alpha=score>numberSplit,colour='black')) #+ geom_node_point(aes(color=ID,size=deg)) + geom_node_text(aes(label=ID), repel=F) + ggtitle(paste0("scoreCut=",scoreCut, ", numberCut=",numberCut,", numberSplit=",numberSplit))
+   pdf("intgraph_1.pdf")
+   p2<-ggplot(tmp,aes(x=score)) + geom_bar()
+   plot(gr,arrow.size=.2,edge.curved=-.1,edge.width=log(E(gr)$score)) 
+      dev.off()
+      pdf("intgraph_2.pdf") 
+   print(ggdraw() + draw_plot(p1 + theme(legend.justification="bottom"), 0,0,1,1) + draw_plot(p2 + geom_vline(xintercept=numberSplit) ,0.75, 0.7, 0.2, 0.3) )
+   dev.off()
+return(invisible(list(p1=p1,p2=p2,graph=gr)))
    }

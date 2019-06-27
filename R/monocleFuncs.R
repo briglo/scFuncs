@@ -5,7 +5,7 @@
 #' @param monocleObj the monocle object 
 #' @param geneVec the character vector of genes to assemble cells on
 #'
-#' @return a scGPS object
+#' @return a monocle object with Pseudo vectors and state in me
 #'
 #' @examples
 #' NULL
@@ -17,6 +17,6 @@ message('depending on your gene list, this might take ages \n you have been warn
 tmp<-monocleObj
 tmp <- setOrderingFilter(tmp, geneVec)
 tmp <- reduceDimension(tmp, max_components=2,method = 'DDRTree')
-tmp <- orderCells(tmp, tmp <- orderCells(tmp, reverse=FALSE))
+tmp <- orderCells(tmp, reverse=FALSE)
 return(tmp)
 }

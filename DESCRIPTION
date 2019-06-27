@@ -1,0 +1,10 @@
+Package: scFuncs
+Title: Briglos scrRNA functions
+Version: 0.0.1
+Authors@R: person("Brian", "Gloss", email = "brian.s.gloss@gmail.com", role = c("aut", "cre"))
+Description: a pile of wrapper functions that made my life easier doing scRNA research
+Depends: R (>= 3.5.0)
+License: GPL-2
+LazyData: true
+RoxygenNote: 6.1.1
+Encoding: UTF-8
