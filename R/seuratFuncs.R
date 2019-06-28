@@ -209,6 +209,29 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
     return(seuratObj)
 }
 
+#' plotSankey
+#'
+#' compares populations between metadata columns
+#'
+#' @param seuratObj the Seurat object
+#' @param idvars character vector of medatadata column names
+#'
+#' @return a gawd awful javascript doohicky that i dont understand
+#'
+#' @examples
+#' x<-plotSankey(integrated,c("orig.ident","SCT_snn_res.0.8"))
+#'
+#' @export
+plotSankey<-function(seuratObj,idvar=c("varRes.0.3","emt_res.0.3")){
+require(flipPlots)
+message('try install_github("Displayr/flipPlots") if this doesnt work')
+require(dplyr)
+seuratObj@meta.data[,match(idvar,colnames(seuratObj@meta.data))] %>% arrange(.[,1]) %>% group_by_all() %>% summarise(COUNT = n()) ->> my.data
+ #my.data<-as.factor(my.data[,1])
+
+SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",weights = my.data$COUNT,,max.categories = 1000)
+
+}
 
 
 #' getEntrez

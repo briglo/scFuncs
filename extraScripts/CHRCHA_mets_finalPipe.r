@@ -160,14 +160,15 @@ save(integrated,file="r_objects/190606_4by4_IntegratedSeurat.rdata")
 
 
 
-#originally done for r_objects/mergeSeurat_AllSample1000Random_varNemtNbatchTSNEandMonocleAndSCORE.rdata")
-1) 
+#AR ANALYSIS originally done for r_objects/mergeSeurat_AllSample1000Random_varNemtNbatchTSNEandMonocleAndSCORE.rdata")
+#make distinctions based on AR and ZEB1 results
 integrated@meta.data$isDP<-ifelse( integrated@meta.data$LocSpec_id=="43978", 
 ifelse(integrated@meta.data$magicEMT_AR>0.0035 & integrated@meta.data$magicEMT_ZEB1>.65, "DP", ifelse(integrated@meta.data$magicEMT_AR>0.0035,"ARonly","neither")),ifelse(integrated@meta.data$LocSpec_id=="43979",
 ifelse(integrated@meta.data$magicEMT_AR<0.005 & integrated@meta.data$magicEMT_ZEB1>.8,"superZeb", ifelse(integrated@meta.data$magicEMT_AR>0.005 & integrated@meta.data$magicEMT_ZEB1>.65,"DP","neither")),
 ifelse(integrated@meta.data$magicEMT_AR>0.0035 , "DP","neither")))
 ggplot(integrated@meta.data,aes(x=magicEMT_ZEB1,y=magicEMT_AR,color=isDP)) + geom_point(alpha=.5) + facet_wrap(~LocSpec_id) ; dev.off()
 
+##useful genelist
 library(cmapR)
 library(dplyr)
 x<-parse.gmx("data/Androgen_response_genesets.gmx")
@@ -176,4 +177,12 @@ allAR<-unique(unlist(lapply(x,function(X) return(X$entry))))
 integrated<-SetIdent(integrated,value=integrated@meta.data$isDP)
 m<-FindAllMarkers(integrated)
 m %>% filter(p_val_adj<0.05) -> comb
-save(comb,file="newAllMarkers.rdata")
+save(m,comb,file="newAllMarkers.rdata")
+
+
+hasEntrez<-getEntrez(integrated,'all')
+scomb<-split(comb,comb$cluster)
+sscomb<-lapply(scomb,function(x) splitDirection(x,getEntrezObj=hasEntrez))
+oi<-lapply(sscomb,reactomeClusts)
+
+
