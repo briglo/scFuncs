@@ -11,4 +11,4 @@ has_devel()
 create()
 #tweak DESCRIPTION
 document()
- #GoodToGoexit :)
+ #GoodToGo :)

@@ -20,7 +20,7 @@ cd "$ddir"/"$1"/outs
 
 samtools view "$ddir"/"$1"/outs/rmdup_sort_"$1".bam hg19_1 hg19_2 hg19_3 hg19_4 hg19_5 hg19_6 hg19_7 hg19_8 hg19_9 hg19_10 hg19_11 hg19_12 hg19_13 hg19_14 hg19_15 hg19_16 hg19_17 hg19_18 hg19_19 hg19_20 hg19_21 hg19_22 | freebayes -f /share/ScratchGeneral/briglo/scRNA/chrcha/anno/renamed_hg19.fa -iXu -C 2 -q 1 --min-coverage 12 --stdin -v "$ddir"/"$1"/outs/"$1"_SNV.vcf  -
 
-vcftools --vcf "$ddir"/"$1"/outs/"$1"_SNV.vcf --minQ 30 --recode --recode-INFO-all --out /share/ScratchGeneral/briglo/scRNA/chrcha/vcfs/"$1"_hiqualSNV.vcf"
+vcftools --vcf "$ddir"/"$1"/outs/"$1"_SNV.vcf --minQ 30 --recode --recode-INFO-all --out /share/ScratchGeneral/briglo/scRNA/chrcha/vcfs/"$1"_hiqualSNV.vcf
 
 
 samtools view --output-fmt bam rmdup_sort_M43973_PT.bam hg19_1 hg19_2 hg19_3 hg19_4 hg19_5 hg19_6 hg19_7 hg19_8 hg19_9 hg19_10 hg19_11 hg19_12 hg19_13 hg19_14 hg19_15 hg19_16 hg19_17 hg19_18 hg19_19 hg19_20 hg19_21 hg19_22 | freebayes -f /share/ScratchGeneral/briglo/scRNA/chrcha/anno/renamed_hg19.fa -iXu -C 2 -q 1 -v pipe_SNV.vcf -

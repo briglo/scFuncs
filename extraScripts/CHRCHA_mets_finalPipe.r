@@ -174,12 +174,11 @@ library(dplyr)
 x<-parse.gmx("data/Androgen_response_genesets.gmx")
 allAR<-unique(unlist(lapply(x,function(X) return(X$entry))))
 
+# markering now wrapped up in makeReactomePipe
 integrated<-SetIdent(integrated,value=integrated@meta.data$isDP)
 m<-FindAllMarkers(integrated)
 m %>% filter(p_val_adj<0.05) -> comb
 save(m,comb,file="newAllMarkers.rdata")
-
-
 hasEntrez<-getEntrez(integrated,'all')
 scomb<-split(comb,comb$cluster)
 sscomb<-lapply(scomb,function(x) splitDirection(x,getEntrezObj=hasEntrez))
