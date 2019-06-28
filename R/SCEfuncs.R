@@ -3,7 +3,6 @@
 #' takes a singleCellExperiment object and runs landSCENT
 #'
 #' @param sce_obj a SingleCellExperiment object
-#' @param id a name for the sample
 #'
 #' @return invisible list of plot objects
 #'
@@ -12,7 +11,7 @@
 #'
 #' @export	 
 
-trimNscent<-function(sce_obj,id){
+trimNscent<-function(sce_obj){
     message('libraries')
     require(LandSCENT)
 require(SingleCellExperiment)

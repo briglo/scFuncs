@@ -263,6 +263,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 #' turns a  Seurat FindMarkers object into a bunch of entrez IDs
 #'
 #' @param marker a Find[All]Markers object (may need marker$gene to be added)
+#' @param getEntrezObj
 #'
 #' @return a matrix of MAGIC expression
 #'
@@ -270,7 +271,7 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 #' NULL
 #'
 #' @export	 
-	 splitDirection<-function(marker) lapply(split(marker,marker$avg_logFC>0), function(x) mkEnt(split(x$gene,x$cluster))) # splits a FindAllMarkers object into cluster and up/down
+	 splitDirection<-function(marker,getEntrezObj) lapply(split(marker,marker$avg_logFC>0), function(x) mkEnt(split(x$gene,x$cluster),getEntrezObj)) # splits a FindAllMarkers object into cluster and up/down
 
 
 #' reactomeClusts
@@ -298,6 +299,37 @@ makeMetaScore<-function(seuratObj,geneList,reduction=NA){
 	 } #finds enriched reactome clusters for a list of entrez ids requires a background getEntrez object called hasEntrez
 
 
+#' makeReactomePipe
+#'
+#' wrapper for seurat to reactome
+#'
+#' @param mkEntObj an output from  mkEnt or an element of splotDirection
+#'
+#' @return list with markers and a list of compareClusterObject for plotting
+#'
+#' @examples
+#' enrichment<-makeReactomePipe(integrated,"SCT_snn_res.0.15")
+#' for i in 1:length(enrichment$CP_result)) dotplot(enrichment$CP_result[[i]]) + ggtitle(names(enrichment$CP_result)[i])
+#'
+#' @export	 
+makeReactomePipe<-function(seuratObj,metaDataColumn){
+    require(Seurat)
+    require(clusterProfiler)
+    require(dplyr)
+    message('making markers, might take a while')
+seuratObj<-SetIdent(seuratObj,value=seuratObj@meta.data[,metaDataColumn])
+m<-FindAllMarkers(seuratObj)
+m %>% filter(p_val_adj<0.05) -> comb
+message('making enrichment objects, might take a while again')
+comb$cluster<-as.character(comb$cluster)
+hasEntrez<-getEntrez(seuratObj,'all')
+scomb<-splitDirection(comb,hasEntrez)
+oi<-lapply(scomb, reactomeClusts)
+return(list(
+"markers"=m,
+"CP_result"=oi,
+"masterID"=hasEntrez))
+}
 
 #' preprocCellPhone
 #'

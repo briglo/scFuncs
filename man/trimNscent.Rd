@@ -4,12 +4,10 @@
 \alias{trimNscent}
 \title{trimNscent}
 \usage{
-trimNscent(sce_obj, id)
+trimNscent(sce_obj)
 }
 \arguments{
 \item{sce_obj}{a SingleCellExperiment object}
-
-\item{id}{a name for the sample}
 }
 \value{
 invisible list of plot objects

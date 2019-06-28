@@ -1,0 +1,314 @@
+Wang_LNCaP_DHT_up	Wang_LNCaP_DHT_down	ANDROGEN_RECEPTOR_SIGNALING_PATHWAY	MOTAMED_RESPONSE_TO_ANDROGEN_DN	MOTAMED_RESPONSE_TO_ANDROGEN_UP	NELSON_RESPONSE_TO_ANDROGEN_DN	NELSON_RESPONSE_TO_ANDROGEN_UP	TAKAYAMA_BOUND_BY_AR	WANG_RESPONSE_TO_ANDROGEN_UP	HALLMARK_ANDROGEN_RESPONSE	WANG_PROSTATE_CANCER_ANDROGEN_INDEPENDENT	GO_ANDROGEN_METABOLIC_PROCESS	GO_ANDROGEN_RECEPTOR_BINDING	GO_ANDROGEN_RECEPTOR_SIGNALING_PATHWAY	GO_ANDROGEN_BIOSYNTHETIC_PROCESS
+na	na	> Genes annotated by the GO term GO:0030521. Any series of molecular signals generated as a consequence of an androgen binding to its receptor.	> Genes down-regulated in ovarian epithelial cells in response to dihydrotestosterone (DHT) [PubChem=10635].	> Genes up-regulated in ovarian epithelial cells in response to dihydrotestosterone (DHT) [PubChem=10635].	> Genes down-regulated in LNCaP cells (prostate cancer) in response to synthetic androgen R1881 [PubChem=13766].	> Genes up-regulated in LNCaP cells (prostate cancer) in response to synthetic androgen R1881 [PubChem=13766].	"> Genes whose promoters bound AR [GeneID=367] in LNCaP cells (prostate cancer) after exposure to the synthetic androgen R1881 [PubChem=13766], based on ChIP-chip analysis."	> Genes up-regulated in LNCaP cells (prostate cancer) treated with synthetic androgen R1881 [PubChem=13766].	> Genes defining response to androgens.	> Genes changed in prostate cancer: androgen independent vs androgen dependent samples.	"> The chemical reactions and pathways involving androgens, C19 steroid hormones that can stimulate the development of male sexual characteristics."	> Interacting selectively and non-covalently with an androgen receptor.	> Any series of molecular signals generated as a consequence of an androgen binding to its receptor.	"> The chemical reactions and pathways resulting in the formation of androgens, C19 steroid hormones that can stimulate the development of male sexual characteristics."
+AAK1	AMIGO2	ARID1A	ACHE	CYP4B1	BARD1	ABCC4	CATSPER2	ACSL3	ABCC4	ALDH4A1	ADM	BRCA1	AR	AKR1C3
+ABCC4	ANKRD16	DAXX	ASH1L	HEMGN	BCHE	ABHD2	CDH2	APPBP2	ABHD2	AP2A2	AKR1C3	CALR	ARID1A	CYP17A1
+ABHD2	ANKRD28	MED1	BACH2	IDS	CDK8	ACSL3	CDK14	ATXN3	ACSL3	BAIAP2	AKR1C4	CCNE1	BRCA1	HSD17B1
+ACACA	ARMC7	MED12	KLHDC5	SSH1	CTBP1	ACTN1	MET	BMPR1B	ACTN1	BDKRB1	AKR1D1	CDK7	CCNE1	HSD17B3
+ACSL3	ARRDC3	MED13	NT5DC1	SULT1E1	CXCR7	ADAMTS1	PGC	CAMKK2	ADAMTS1	BTG2	CYP17A1	CTNNB1	CDK7	HSD17B6
+ADD3	ASAP2	MED14	STIM1	ZNF862	DDC	ADRM1	PPIP5K1	CENPN	ADRM1	C17orf70	CYP19A1	DAXX	CTNNB1	HSD3B1
+ADRB2	BAMBI	MED16			DPH1	AKAP12	SKAP2	CRLS1	AKAP12	C5orf44	CYP3A4	DDX5	DAXX	HSD3B2
+ALDH1A3	C12orf60	MED17			FN1	ALDH1A3	STEAP2	DYNLL2	AKT1	C7orf49	DHRS9	EP300	DNAJA1	MED1
+ANKH	C14orf4	MED24			MMP16	ANKH	TES	ELK4	ALDH1A3	CDC14B	ESR1	FHL2	FHL2	SCARB1
+ANKRD29	C19orf18	MED30			MYC	APPBP2	UGT1A1	EVI5	ANKH	CDH11	HSD17B1	FOXH1	FKBP4	SRD5A1
+ANKRD37	C5orf30	MED4			PEG3	ARID5B		FADS1	APPBP2	CIAPIN1	HSD17B11	FOXP1	GRIP1	SRD5A2
+APBB2	CCDC77	THRAP3			PIK3R3	AZGP1		GNAI3	ARID5B	COL15A1	HSD17B3	GRIP1	KAT5	SRD5A3
+APPBP2	CCNG2				PRKD1	B2M		HMGCR	AZGP1	CTBP2	HSD17B4	KAT5	KDM3A	STAR
+ARHGEF26	CDK8				SCNN1A	B4GALT1		INSIG1	B2M	DBI	HSD17B6	KDM1A	MED1	WNT4
+ARL4C	CEP63				SDC4	C1orf21		KLK2	B4GALT1	DBP	HSD17B8	KDM3A	MED12	
+ARL5A	CNKSR3				SERPINI1	CAMKK2		KLK3	BMPR1B	DCXR	HSD3B1	KDM4C	MED13	
+ATMIN	CPEB4				SLC29A1	CDC14B		MAF	CAMKK2	DST	HSD3B2	NCOA1	MED14	
+ATXN2	CXXC5				ST7	CPD		MAP7	CCND1	DZIP1	MED1	NCOA3	MED16	
+B4GALNT1	CYBASC3				TULP4	DBI		MED28	CCND3	EDA	PLEKHA1	NCOA4	MED17	
+BCAP29	DNAJB4					DCTN3		MTERFD2	CDC14B	EIF3B	PPARGC1A	NRIP1	MED24	
+BLM	ELF3					DHCR24		NGLY1	CDK6	FAM189A2	SCARB1	NSD1	MED30	
+BMPR1A	EXPH5					DNAJB9		PIAS1	CENPN	FBXO11	SGPL1	PARK7	MED4	
+BRP44	GATA2					ELL2		RRP12	DBI	FMO1	SHH	PIAS1	NCOA1	
+BTG1	GOLPH3L					ELOVL5		SLC30A7	DHCR24	FN1	SRD5A1	PIAS2	NCOA3	
+C14orf118	GPR63					FKBP5		SPCS3	DNAJB9	FRAT2	SRD5A2	PKN1	NCOA4	
+C17orf48	GTF2E1					GSR		TARP	ELK4	GADD45G	SRD5A3	PPARGC1A	NKX3-1	
+C19orf48	HOXB13					GUCY1A3		TMEM50A	ELL2	GSTT1	STAR	PRKCB	NR1I3	
+C1orf100	HOXC12					H1F0		UBE2J1	ELOVL5	HDDC2	TIPARP	PRMT2	NRIP1	
+C1orf116	HSPA1B					HERC3		ZBTB10	FADS1	HGD	UGT2B7	PRPF6	PIAS1	
+C1orf21	INHBB					HES6			FKBP5	ITGB5	WNT4	RAN	PIAS2	
+C3orf25	INSIG2					HMGCS1			GNAI3	JUND		RB1	PMEPA1	
+C6orf142	IRX3					HOMER2			GPD1L	KAT8		RNF14	PPAP2A	
+C9orf72	LMO4					HPGD			GSR	KIAA0284		RNF4	PPARGC1A	
+CAB39L	LRRN1					HSD17B14			GUCY1A3	LILRB3		RNF6	RAN	
+CAMKK2	MAPK1IP1L					ID2			H1F0	LOC729806		SMARCA4	RB1	
+CAP2	MARVELD2					IDI1			HERC3	LTB4R		TCF21	RNF14	
+CBLL1	MORC3					INPP4B			HMGCR	MCL1		TGFB1I1	RNF4	
+CD274	NAPEPLD					IQGAP2			HMGCS1	MT1P2		TRIM68	SCGB2A1	
+CD2AP	NCOA7					ITGAV			HOMER2	NMT2		WIPI1	TGFB1I1	
+CD8A	NDUFAF4					KLF4			HPGD	NR4A3			THRAP3	
+CDC23	NET1					KLK2			HSD17B14	PARP2			UBE3A	
+CDC42EP3	NUCB2					KLK3			IDI1	PECAM1				
+CDYL2	OBFC2A					KLK4			INPP4B	PPP1R12A				
+CEBPD	OPRK1					KRT19			INSIG1	PRKAR2B				
+CENPN	OSR2					KRT8			IQGAP2	PRPF19				
+CEP120	PABPC5					LIFR			ITGAV	RAB27A				
+CHD7	PIK3R1					LMAN1			KLK2	RABGAP1L				
+CHKA	PIK3R3					MAF			KLK3	REPS2				
+CHRNA2	PITX1					MERTK			KRT19	RGNEF				
+CLDN8	PMS2					MYL12A			KRT8	RNF41				
+CLGN	PPP2R2A					NDRG1			LIFR	RPL13				
+CPEB2	PURA					NKX3-1			LMAN1	RPL39L				
+CROT	REXO2					ORM2			MAF	RPLP2				
+CSH2	RFX3					PALM2-AKAP2			MAK	RPS14P3				
+CSPP1	RNF145					PDLIM5			MAP7	SDC2				
+CXCL9	SDC4					PGM3			MERTK	SGSH				
+CYP2U1	SLITRK3					PHYH			MYL12A	SLC4A1AP				
+CYR61	SNRK					PIAS1			NCOA4	SOD2				
+CYTH1	SOX9					PMEPA1			NDRG1	SPCS3				
+DEFB132	ST3GAL1					PPAP2A			NGLY1	TNNI3K				
+DEGS1	SYBU					PTPN21			NKX3-1	TOP3A				
+DHCR24	SYTL2					RAB4A			PA2G4	TRIM33				
+DNAJB9	TMEM138					RBM10			PDLIM5	UGT8				
+DNM1L	TNFSF15					SAT1			PGM3	USPL1				
+DOCK4	TP53INP1					SCD			PIAS1	WDR67				
+DUSP10	TRPS1					SEC24D			PMEPA1	ZNF84				
+DUSP27	TSPAN15					SEPP1			PPAP2A					
+DUSP4	UBQLN2					SGK1			PTK2B					
+EAF2	VSTM2L					SLC26A2			PTPN21					
+EDEM3	XBP1					SLC38A2			RAB4A					
+EEF2K	ZBTB43					SMS			RPS6KA3					
+EHF	ZCCHC24					SNAP25			RRP12					
+ELL2	ZIC2					SORD			SAT1					
+ELOVL5						SPDEF			SCD					
+ELOVL7						SRP19			SEC24D					
+ENAM						STEAP4			SEPP1					
+EPB41L4B						STK39			SGK1					
+EPDR1						TMPRSS2			SLC26A2					
+ERN1						TNFAIP8			SLC38A2					
+ERRFI1						TPD52			SMS					
+EXTL2						TSC22D1			SORD					
+F2RL1						UAP1			SPCS3					
+F5						UGDH			SPDEF					
+FAM105A						UNC13B			SRF					
+FAM105B						VAPA			SRP19					
+FAM107B						ZBTB10			STEAP4					
+FAM110B									STK39					
+FAM118B									TARP					
+FAM13A									TMEM50A					
+FAM174B									TMPRSS2					
+FAM43A									TNFAIP8					
+FAM49A									TPD52					
+FAM65B									TSC22D1					
+FAT1									UAP1					
+FBXL3									UBE2I					
+FBXO28									UBE2J1					
+FBXO38									VAPA					
+FHDC1									XRCC5					
+FKBP5									XRCC6					
+FNBP1L									ZBTB10					
+FRYL									ZMIZ1					
+FSTL1														
+FZD5														
+GCNT1														
+GDF15														
+GDPD1														
+GHR														
+GLIPR2														
+GNB4														
+GPR158														
+GREB1														
+GRHL2														
+GUCY1A3														
+HECW1														
+HERC3														
+HERC5														
+HERC6														
+HES6														
+HIVEP1														
+HMGCR														
+HOMER1														
+HOMER2														
+HPGD														
+IGF1R														
+IGFBP3														
+IL21														
+IQGAP2														
+IRS1														
+IRS2														
+JAG1														
+JUN														
+KCNG3														
+KCNJ2														
+KCNN2														
+KIAA0355														
+KIAA1370														
+KIAA1432														
+KLF5														
+KLF6														
+KLHL20														
+KLK2														
+KLK3														
+KLK4														
+L3MBTL3														
+LAMA3														
+LAMC1														
+LCP1														
+LGALS12														
+LIFR														
+LPAR3														
+LRIG1														
+LRRC16A														
+LRRFIP2														
+MAF														
+MAFB														
+MAGEC2														
+MAK														
+MALT1														
+MAP7D1														
+MAP9														
+MAPK6														
+MARS2														
+MBOAT2														
+MIER3														
+MPHOSPH9														
+MSX1														
+MTM1														
+MTMR9														
+MYCBP2														
+MYL1														
+MYO1B														
+NAT1														
+NCAPD3														
+NDRG1														
+NEDD4L														
+NEXN														
+NFIL3														
+NFKBIA														
+NKX3-1														
+NKX3-2														
+NPC1														
+NPPC														
+NSMAF														
+ODC1														
+ORC5														
+ORM1														
+ORM2														
+OSBP														
+OSBPL8														
+OSTalpha														
+PBOV1														
+PCNXL2														
+PCTP														
+PDE9A														
+PDIA5														
+PDS5B														
+PER1														
+PEX10														
+PFKFB2														
+PGM2														
+PHF8														
+PIK3AP1														
+PLK2														
+PMAIP1														
+PMEPA1														
+PNMA1														
+PPAP2A														
+PPAPDC2														
+PPFIBP1														
+PPFIBP2														
+PPM1A														
+PPM1D														
+PRR15L														
+PRR16														
+PTGER4														
+PTGFR														
+PTPN9														
+RAB27A														
+RAB32														
+RAB39														
+RAB3B														
+RAB4A														
+RAB7L1														
+RAD54B														
+RBM24														
+RCOR3														
+REPS2														
+RFC3														
+RFX6														
+RGS2														
+RHOBTB3														
+RHOU														
+RIPK4														
+RNF144A														
+RNF150														
+SASH1														
+SAT1														
+SC5DL														
+SEC24B														
+SEMA3C														
+SEPP1														
+SERTAD4														
+SETBP1														
+SGK1														
+SGK3														
+SHROOM3														
+SIM2														
+SIPA1L2														
+SIRT1														
+SLC16A6														
+SLC19A2														
+SLC25A33														
+SLC25A37														
+SLC2A12														
+SLC35F2														
+SLC38A4														
+SLC41A1														
+SLC45A3														
+SLC4A4														
+SMURF2														
+SNAI2														
+SOAT1														
+SOCS2														
+SPIRE1														
+SSX2IP														
+ST6GALNAC1														
+STAC														
+STK17B														
+STK39														
+SYNJ1														
+TAOK3														
+TBC1D1														
+TBPL1														
+TBRG1														
+TEX2														
+TGFBR3														
+THBS1														
+THRB														
+TIPARP														
+TMCC3														
+TMEFF2														
+TMEM31														
+TMPRSS2														
+TMTC2														
+TNFAIP3														
+TNFAIP8														
+TNFRSF10B														
+TNFSF4														
+TNK2														
+TPD52														
+TRIM36														
+TSC22D1														
+TWIST1														
+TWISTNB														
+TXNDC16														
+UAP1														
+UBE2G1														
+UHRF2														
+VAT1L														
+VCL														
+VEGFA														
+VLDLR														
+WDR47														
+YOD1														
+ZBTB16														
+ZFYVE16														
+ZMIZ1														
+ZNF217														
+ZNF589														
+ZNF652														
+ZNF697														
+ZNF75D														

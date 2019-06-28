@@ -4,10 +4,12 @@
 \alias{splitDirection}
 \title{splitDirection}
 \usage{
-splitDirection(marker)
+splitDirection(marker, getEntrezObj)
 }
 \arguments{
 \item{marker}{a Find[All]Markers object (may need marker$gene to be added)}
+
+\item{getEntrezObj}{}
 }
 \value{
 a matrix of MAGIC expression
