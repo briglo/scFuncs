@@ -22,7 +22,7 @@ plotSankey(integrated,c("orig.ident","Phase"))
 
 # look at reactome enrichment for clusters
 markers<-makeReactomePipe(integrated,"SCT_snn_res.0.8")
-for i in 1:length(markers$CP_result)) dotplot(markers$CP_result[[i]]) + ggtitle(names(markers$CP_result)[i])
+for (i in 1:length(markers$CP_result)) dotplot(markers$CP_result[[i]]) + ggtitle(names(markers$CP_result)[i])
 
 # look at combined expression of some marker genes in UMAP space
 integrated<-makeMetaScore(integrated,markers$markers$gene[1:50])
