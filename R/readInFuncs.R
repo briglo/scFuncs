@@ -101,13 +101,14 @@ ExtractField <- function (string, field = 1, delim = "_")
 #' id <- makeSeuratList(snam)
 #'
 #' @export
-
 makeSeuratList<-function(data.dirs=NULL,min.cells=3,min.features=200){
 return(lapply(data.dirs, function(x) {
+    dd<-unlist(strsplit(x,"\\/"))
+    pnam<-dd[grep('outs',dd)-1]
 rd <- Read10X(x)
 rd<-rd[grepl("hg19",rownames(rd)),]
 rownames(rd)<-gsub("hg19_","",rownames(rd))
-return(CreateSeuratObject(counts=rd,project=gsub('^M',"",x), min.cells=3,min.features=200))
+return(CreateSeuratObject(counts=rd,project=gsub('^M',"",pnam), min.cells=3,min.features=200))
 }))
 }
 

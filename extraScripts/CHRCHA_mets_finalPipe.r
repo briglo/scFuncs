@@ -120,6 +120,29 @@ DEgenes<-find_markers(expression_matrix=assay(mets$Lung)[comb$Lung@assays$SCT@va
     selected_cluster=allID) 
 save(DEgenes,file="/share/ScratchGeneral/briglo/scRNA/chrcha/r_objects/190613_DEgenesByLungCluster.rdata")
 
+load("BYLOCATION.rdata")
+load("/share/ScratchGeneral/briglo/scRNA/chrcha/r_objects/190614_scGPSinputData.rdata")
+library(scGPS)
+library(Seurat)
+library(locfit)
+library(e1071)
+ALLDE<-lapply(names(mets), function(X) return(find_markers(expression_matrix=assay(mets[[X]])[comb[[X]]@assays$SCT@var.features,],cluster = as.numeric(colData(mets[[X]])[,"X"]),selected_cluster=unique(as.numeric(colData(mets[[X]])[,"X"])))))
+save(ALLDE,file="/share/ScratchGeneral/briglo/scRNA/chrcha/r_objects/190701_DEgenesByMETcluster.rdata")
+
+screen -r 19099.pts-6.dice01
+
+load("/share/ScratchGeneral/briglo/scRNA/chrcha/r_objects/190613_DEgenesByPTcluster.rdata")
+
+prim_ano<-lapply(DEgenes[-c(1:8)], function(X) annotate_scGPS(X$id[X$padj<0.05],pvalueCutoff = 0.05,universe=X$id))
+
+met_ano<-lapply(ALLDE, function(I) lapply(I[-c(1:length(I)/2)], function(X) annotate_scGPS(X$id[X$padj<0.05],pvalueCutoff = 0.05,universe=X$id))) 
+    
+save(prim_ano,met_ano,file="/share/ScratchGeneral/briglo/scRNA/chrcha/r_objects/190701_scGPSFuncAnoByCluster.rdata")
+
+
+
+
+
 # ###########in bash
 # module load briglo/R/3.6.0
 # qsub -V -cwd -pe smp 20 -l mem_requested=20G -N scGPS -b y -j y -m ae -M b.gloss@garvan.org.au Rscript source/190613_runscGPS.r #the long way, worked though but took 24 hours
@@ -160,6 +183,26 @@ save(integrated,file="r_objects/190606_4by4_IntegratedSeurat.rdata")
 
 
 
+#scent
+fnam<-dir("r_objects/", pattern="scent")[-c(1,13,14)] (removing weird ones)
+scentdat<-lapply(fnam, function (x){
+load(paste0("r_objects/", x))
+return(data.frame(scent$InferLandmark.l$cl,scent.SR=scent$SR,scent.pca=scent$coordinates,scent.ps=scent$potencyState))
+
+})
+names(scentdat)<-gsub("_",".",gsub("id_|_scent.rdata","",fnam))
+save(scentdat,file="r_objects/190513_scentSummaryData.rdata")
+###need to glue barcode names similar to MAGIC for new object done  orig for below, ~same cells, not updated
+load("r_objects/mergeSeurat_AllSample1000Random_varNemtNbatchTSNEandMonocleAndSCORE_R3.6.rdata")
+for (i in 1:length(scentdat)) rownames(scentdat[[i]])<- paste0(names(scentdat)[i],"_",gsub("-[1-9]","",rownames(scentdat[[i]])))
+names(scentdat)<-NULL
+ascent<-data.frame(do.call(rbind,scentdat))
+scent<-ascent[rownames(alldat@meta.data),]
+alldat@meta.data<-data.frame(cbind(alldat@meta.data,scent))
+ggplot(integrated@meta.data,aes(x=location,fill=as.factor(scent.ps))) + geom_bar(position='fill') + facet_wrap(~id)
+#### dont forget use lines 55ish to redo this if you want
+
+
 #AR ANALYSIS originally done for r_objects/mergeSeurat_AllSample1000Random_varNemtNbatchTSNEandMonocleAndSCORE.rdata")
 #make distinctions based on AR and ZEB1 results
 integrated@meta.data$isDP<-ifelse( integrated@meta.data$LocSpec_id=="43978", 
@@ -183,5 +226,21 @@ hasEntrez<-getEntrez(integrated,'all')
 scomb<-split(comb,comb$cluster)
 sscomb<-lapply(scomb,function(x) splitDirection(x,getEntrezObj=hasEntrez))
 oi<-lapply(sscomb,reactomeClusts)
+# i foolishly renamed unassigned cells for markers which IMO are indistinguishable from "neither" but gunk up the analysis
+#either way... it is done
+pdf("plots/190701_ARmarkers.pdf",width=36,height=15)
+ for (i in 1:length(markers$CP_result)) dotplot(markers$CP_result[[i]]) + ggtitle(names(markers$CP_result)[i])
+dev.off()
+ 
+ 
+#190701 request from joseph to ID markers for significant cluster assoc markers
+integrated@meta.data$LocSpec_cluster<-ifelse(integrated@meta.data$LocSpec_location %in% c("Liver",'PT'),  integrated@meta.data$LocSpec_SCT_snn_res.0.15,integrated@meta.data$LocSpec_SCT_snn_res.0.25)
+integrated@meta.data$LocSpec_comID<-paste0(integrated@meta.data$LocSpec_location,"_",integrated@meta.data$LocSpec_cluster)
+markers<-makeReactomePipe(integrated,"LocSpec_comID")
 
+screen -r 28273.pts-4.dice01
+
+pdf("../../plots/190701_Seurat_LocSpecMarkers.pdf",width=36,height=15)
+ for (i in 1:length(markers$CP_result)) print(dotplot(markers$CP_result[[i]]) + ggtitle(names(markers$CP_result)[i]))
+dev.off()
 

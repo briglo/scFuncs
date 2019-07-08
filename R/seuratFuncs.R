@@ -1,19 +1,19 @@
-library(Seurat)
-library(Rmagic)
-library(ggplot2)
-library(Matrix)
-library(viridis)
-library(reticulate)
-library(Matrix)
-library(phateR)
-library(Seurat)
-library(reticulate)
-library(matrixStats)
-#library(scGPS)
-library(locfit) #required but not dependency
-library(e1071)
-library(RColorBrewer)
-use_python("/share/ClusterShare/software/contrib/briglo/miniconda3/envs/magic/bin/python")
+# library(Seurat)
+# library(Rmagic)
+# library(ggplot2)
+# library(Matrix)
+# library(viridis)
+# library(reticulate)
+# library(Matrix)
+# library(phateR)
+# library(Seurat)
+# library(reticulate)
+# library(matrixStats)
+# #library(scGPS)
+# library(locfit) #required but not dependency
+# library(e1071)
+# library(RColorBrewer)
+# use_python("/share/ClusterShare/software/contrib/briglo/miniconda3/envs/magic/bin/python")
 
 
 
@@ -54,7 +54,33 @@ for (res in resvec) integrated<-FindClusters(integrated,resolution=res, verbose 
 return(integrated)
 }
 
-
+#' splitMasterSeurat
+#'
+#' turns a Seurat objects into a list of seurat objects
+#'
+#' @param seuratObj the list of Seurat objects, usually from makeSeuratList
+#' @param metaData the metadata column you want to split on
+#' @param keep a character vector of a subset of metadata that you want to keep, default NULL
+#' @param ndims dimensions to use in integration,SCT and UMAP, default 1:30
+#' @param res.vec vector of resolutions to find clusters at, defaults to c(seq(0,1,0.1),1.5,2)
+#'
+#' @return an list of seurat objects
+#'
+#' @examples
+#' NULL
+#'
+#' @export
+splitMasterSeurat<-function(seuratObj,metaData,keep=NULL,ndims=1:30,resVec=c(seq(0,1,0.1),1.5,2)){
+splCells<-split(rownames(seuratObj@meta.data), integrated@meta.data[,metaData])
+if(is.null(keep)) cu<-splCells else cu <- splCells[names(splCells) %in% keep]
+comb<-lapply(cu, function(X) {
+tmp<-subset(integrated,cells=X)
+tmp<-RunUMAP(tmp, dims = ndims, verbose = T)
+tmp<-FindNeighbors(tmp, dims = ndims, verbose = FALSE)
+ for (res in resVec) tmp<-FindClusters(tmp, verbose = FALSE,resolution=res,force.recalc=T)
+return(tmp)
+})
+}
 
 #' seurat2scGPS
 #'
