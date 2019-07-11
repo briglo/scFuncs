@@ -460,3 +460,100 @@ require(ggraph)
    dev.off()
 return(invisible(list(p1=p1,p2=p2,graph=gr)))
    }
+
+
+
+#' countByCut
+#'
+#' takes a gene and a cutoff and counts the number of cells in group expressing it
+#'
+#' @param seuratObj the Seurat object
+#' @param geneName the gene of interest
+#' @param expCut the cutoff for high/low
+#' @param groupBy the metadata to group by
+#' @param splitBy the metadata to split by
+#'
+#' @return  table
+#'
+#' @examples
+#' countTab<-countByCut(seuratObj=integrated,geneName="PFN1",expCut=2,groupBy="orig_final.ident",splitBy="orig.ident")
+#'
+#' @export	 
+countByCut<-function(seuratObj,geneName,expCut,groupBy,splitBy){
+    require(Seurat)
+    require(dplyr)
+   library(tidyr)
+   tmp<-FetchData(seuratObj,c(groupBy,splitBy,geneName))
+   tmp<-data.frame(sample=tmp[,groupBy],id=tmp[,splitBy],exp_pos=tmp[,geneName]>expCut)
+   tmp%>% group_by_all() %>% summarise(n = n()) %>% mutate(prop_cells_expressing=n/sum(n)) %>% complete(sample) -> tab
+   return(data.frame(tab))
+}
+
+
+#' annotateByCuts
+#'
+#' takes a gene and a cutoff and counts the number of cells in group expressing it
+#'
+#' @param seuratObj the Seurat object
+#' @param geneTab the a data.frame of gene and cuts
+#' @param groupBy the metadata to group by (like cell type)
+#' @param groupID a pattern matching group under investigation, required
+#' @param splitBy the metadata to split by (like experiment)
+#' @param splitID a subset of splitBy if required, default NULL (all)
+#'
+#' @return  Seurat Object with calls and outTab, a summary of the results
+#'
+#' @examples
+#' tab<-data.frame(gene=c("PFN1","GZMA","GZMB"),cuts=c(2,0,0))
+#' tmp<-annotateByCuts(seuratObj=integrated,geneTab=tab,groupBy="orig_final.ident",groupID="CD8",splitBy="orig.ident")
+#'
+#' @export	 
+annotateByCuts<-function(seuratObj,geneTab,expCut,groupBy,groupID,splitBy,splitID=NULL){
+    require(Seurat)
+    require(dplyr)
+   library(tidyr)
+   tmp<-FetchData(seuratObj,c(geneTab$gene))
+    for(i in geneTab$gene) tmp[,i]<-ifelse(tmp[,i]>geneTab[geneTab$gene==i,'cuts'],"hi",'Low')
+       colnames(tmp)<-paste0(colnames(tmp),'above',geneTab$cuts)
+  nmd<-data.frame(tmp=apply(tmp,1,function(X) paste0(X,collapse="_")),anoComb=apply(FetchData(seuratObj,c(groupBy,splitBy)),1,function(X) paste0(X,collapse="_")))
+  colnames(nmd)[1]=as.character(paste0(geneTab$gene,collapse="_"))
+   seuratObj@meta.data<-data.frame(cbind(seuratObj@meta.data,tmp,nmd))
+
+cells.filter<-rownames(seuratObj@meta.data)[grep(groupID,seuratObj@meta.data[,groupBy])]
+
+if(is.null(splitID)) { 
+    cbind(FetchData(seuratObj,c(groupBy,splitBy)),tmp)[cells.filter,] %>% group_by_all() %>% summarise(n = n()) ->> outTab } else {
+        x<-cbind(FetchData(seuratObj,c(groupBy,splitBy)),tmp)[cells.filter,]
+        x[x[,splitBy] %in% splitID,] %>% group_by_all() %>% summarise(n = n()) ->> outTab
+    }
+    
+return(seuratObj)
+}
+
+#' mkUpset
+#'
+#' takes a dataframe of categories and makes an upset plot
+#'
+#' @param seuratObj the takes a dataframe of categories
+#' @param plotAll logical, plot all possible comparisons (even empty ones), default TRUE
+#' @param ... additional parameters to pass to upset if plotall is set to FALSE
+#'
+#' @return an upset plot in working directory called upsetPlot.pdf
+#'
+#' @examples
+#' NULL
+#' mkUpset(integrated@meta.data[,c('PFN1',"GZMA","GZMB")],plotAll=F)
+#' @export
+mkUpset<-function(categoryMatrix,plotAll=T,...) {
+    require(UpSetR)
+dm<-data.frame(categoryMatrix,stringsAsFactors=F)
+groups<-unique(c(apply(dm,2,function(x) x)))
+upsetDat<-lapply(groups, function(X) return(ifelse(dm==X,1,0)))
+for(i in 1:length(upsetDat)) colnames(upsetDat[[i]])<-paste0(groups[i],colnames(upsetDat[[i]]))
+pldat<-data.frame(do.call(cbind,upsetDat))
+pdf("upsetPlot.pdf")
+if(plotAll) {
+    upset(data.frame(pldat),nsets=length(groups)*dim(dm)[2],nintersects=2000,empty.intersections=T)
+        } else { upset(data.frame(pldat),...) }
+dev.off()
+}
