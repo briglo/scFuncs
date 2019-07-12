@@ -354,7 +354,6 @@ SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",
 #'
 #' @param seuratObj an a seurat object
 #' @param metaDataColumn a column name from seuratObj metadata
-#' @param
 #'
 #' @return list with markers and a list of compareClusterObject for plotting
 #'
@@ -445,7 +444,6 @@ return(list('hasEntrez'=hasEntrez, 'markerLists'=mm))
 #' out<-makeReactomeForMarkers(enrichment$markerLists[[1]],enrichment$hasEntrez)
 #'
 #' @export
-
 makeReactomeForMarkers<-function(findMarkersOut,hasEntrezObj){
     findMarkersOut$gene<-rownames(findMarkersOut)
     findMarkersOut %>% filter(p_val_adj<0.05) -> comb
@@ -549,7 +547,7 @@ return(invisible(list(p1=p1,p2=p2,graph=gr)))
 #' @param groupBy the metadata to group by
 #' @param splitBy the metadata to split by
 #'
-#' @return  table
+#' @return a table of counts
 #'
 #' @examples
 #' countTab<-countByCut(seuratObj=integrated,geneName="PFN1",expCut=2,groupBy="orig_final.ident",splitBy="orig.ident")
@@ -619,6 +617,7 @@ return(seuratObj)
 #' @examples
 #' NULL
 #' mkUpset(integrated@meta.data[,c('PFN1',"GZMA","GZMB")],plotAll=F)
+#'
 #' @export
 mkUpset<-function(categoryMatrix,plotAll=T,...) {
     require(UpSetR)

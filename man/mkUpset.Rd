@@ -22,4 +22,5 @@ takes a dataframe of categories and makes an upset plot
 \examples{
 NULL
 mkUpset(integrated@meta.data[,c('PFN1',"GZMA","GZMB")],plotAll=F)
+
 }

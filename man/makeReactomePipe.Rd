@@ -7,7 +7,9 @@
 makeReactomePipe(seuratObj, metaDataColumn)
 }
 \arguments{
-\item{mkEntObj}{an output from  mkEnt or an element of splotDirection}
+\item{seuratObj}{an a seurat object}
+
+\item{metaDataColumn}{a column name from seuratObj metadata}
 }
 \value{
 list with markers and a list of compareClusterObject for plotting

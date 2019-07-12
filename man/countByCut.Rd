@@ -18,7 +18,7 @@ countByCut(seuratObj, geneName, expCut, groupBy, splitBy)
 \item{splitBy}{the metadata to split by}
 }
 \value{
-table
+a table of counts
 }
 \description{
 takes a gene and a cutoff and counts the number of cells in group expressing it

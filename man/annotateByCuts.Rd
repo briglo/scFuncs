@@ -28,6 +28,6 @@ takes a gene and a cutoff and counts the number of cells in group expressing it
 }
 \examples{
 tab<-data.frame(gene=c("PFN1","GZMA","GZMB"),cuts=c(2,0,0))
-tmp<-annotateByCuts(seuratObj=integrated,geneTab=tab,groupBy="orig_final.ident",groupID="CD8",splitBy="orig.ident")
+integrated<-annotateByCuts(seuratObj=integrated,geneTab=tab,groupBy="orig_final.ident",groupID="CD8",splitBy="orig.ident")
 
 }
