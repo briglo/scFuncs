@@ -279,9 +279,9 @@ SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",
 	     require(Seurat)
          human<- useMart(biomart='ensembl', dataset = "hsapiens_gene_ensembl")
 	 if (geneList=="var.genes") {
-	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene","hgnc_symbol"),filters="hgnc_symbol",values=integrated@assays$SCT@var.features,mart=human))
+	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene_id","hgnc_symbol"),filters="hgnc_symbol",values=integrated@assays$SCT@var.features,mart=human))
 	 } else {
-	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene","hgnc_symbol"),filters="hgnc_symbol",values=rownames(integrated@assays$SCT@data),mart=human))
+	 	return(getBM(attributes=c("ensembl_gene_id","entrezgene_id","hgnc_symbol"),filters="hgnc_symbol",values=rownames(integrated@assays$SCT@data),mart=human))
 	 }
 	 }#
 
@@ -303,7 +303,7 @@ SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",
 	 mkEnt<-function(listOids,getEntrezObj){
 	     require(clusterProfiler)
 	     require(ReactomePA)
-	     return(lapply(listOids,function(x) as.character(na.omit(getEntrezObj$entrezgene[match(x,getEntrezObj$hgnc_symbol)]))))
+	     return(lapply(listOids,function(x) as.character(na.omit(getEntrezObj$entrezgene_id[match(x,getEntrezObj$hgnc_symbol)]))))
 	  } 
 
 
@@ -343,7 +343,7 @@ SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",
 	     require(clusterProfiler)
 	     require(ReactomePA)
 	     message("making object, takes a while")
-	     return(compareCluster(geneCluster = mkEntObj, fun = "enrichPathway",organism='human',universe=as.character(na.omit(hasEntrez$entrezgene)),pvalueCutoff=0.05,readable=T)
+	     return(compareCluster(geneCluster = mkEntObj, fun = "enrichPathway",organism='human',universe=as.character(na.omit(hasEntrez$entrezgene_id)),pvalueCutoff=0.05,readable=T)
 	 )
 	 } #finds enriched reactome clusters for a list of entrez ids requires a background getEntrez object called hasEntrez
 
@@ -352,7 +352,9 @@ SankeyDiagram(my.data[, -grep("COUNT",colnames(my.data))],link.color = "Source",
 #'
 #' wrapper for seurat to reactome
 #'
-#' @param mkEntObj an output from  mkEnt or an element of splotDirection
+#' @param seuratObj an a seurat object
+#' @param metaDataColumn a column name from seuratObj metadata
+#' @param
 #'
 #' @return list with markers and a list of compareClusterObject for plotting
 #'
@@ -371,7 +373,7 @@ m<-FindAllMarkers(seuratObj)
 m %>% filter(p_val_adj<0.05) -> comb
 message('making enrichment objects, might take a while again')
 comb$cluster<-as.character(comb$cluster)
-hasEntrez<-getEntrez(seuratObj,'all')
+if(!exists("hasEntrez")) hasEntrez<-getEntrez(seuratObj,'all')
 scomb<-splitDirection(comb,hasEntrez)
 oi<-lapply(scomb, reactomeClusts)
 return(list(
@@ -379,6 +381,80 @@ return(list(
 "CP_result"=oi,
 "masterID"=hasEntrez))
 }
+
+#' makeSpecificMarkers
+#'
+#' wrapper for seurat to reactome but identifying two metadata columns and specifying a single 1vs1 comparison (splits by experiment)
+#'
+#' @param mkEntObj an output from  mkEnt or an element of splotDirection
+#' @param seuratObj the Seurat object
+#' @param groupBy_1 the metadata to group by (like cell type)
+#' @param groupID_1 a specific value of groupBy, required
+#' @param groupBy_2 the metadata to group by (like a result from annotateByCuts)
+#' @param groupID_2 two values of groupBy_2, required
+#' @param splitBy the metadata to split by (like experiment)
+#' @param splitID a subset of splitBy if required, default NULL (all)
+#'
+#' @return list with markers and a list of compareClusterObject for plotting
+#'
+#' @examples
+#' enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="Cancer_2",groupBy_2="PFN1_GZMA_GZMB",groupID_2=c("hi_Low_Low","Low_Low_Low"),splitBy="orig.ident",splitID=NULL)
+#' for i in 1:length(enrichment$CP_result)) dotplot(enrichment$CP_result[[i]]) + ggtitle(names(enrichment$CP_result)[i])
+#'
+#' @export	 
+makeSpecificMarkers<-function(integrated,groupBy_1,groupID_1,groupBy_2,groupID_2,splitBy,splitID=NULL){
+    require(Seurat)
+    require(clusterProfiler)
+    require(dplyr)
+    message('making markers, might take a while')
+seuratObj<-SetIdent(seuratObj, value=paste0(seuratObj@meta.data[,groupBy_1],"_",seuratObj@meta.data[,groupBy_2]))
+if(is.null(splitID)) {
+    cellvec<-split(rownames(seuratObj@meta.data),integrated@meta.data[,splitBy])
+    mm<-lapply(cellvec, function(X){
+        so<-subset(seuratObj,cells=X)
+mar<-FindMarkers(so,ident.1=paste0(groupID_1,"_",groupID_2[1]),ident.2=paste0(groupID_1,"_",groupID_2[2]))
+return(mar)
+    })
+    
+    } else {
+        cell.cull<-rownames(seuratObj@meta.data)[seuratObj@meta.data[,splitBy] %in% splitID]
+so<-subset(seuratObj, cells=cell.cull)
+cellvec<-split(rownames(so@meta.data),so@meta.data[,splitBy])
+    mm<-lapply(cellvec, function(X){
+        so<-subset(seuratObj,cells=X)
+mar<-FindMarkers(so,ident.1=paste0(groupID_1,"_",groupID_2[1]),ident.2=paste0(groupID_1,"_",groupID_2[2]))
+return(mar)
+    })
+    }
+   hasEntrez<-getEntrez(seuratObj,'all')
+return(list('hasEntrez'=hasEntrez, 'markerLists'=mm))
+}
+
+
+#' makeReactomeForMarkers
+#'
+#' wrapper for output of FindClusters to reactome but will crap out if no significance
+#'
+#' @param findMarkersOut a typical output from a FindMarkers seurat operation
+#' @param hasEntrezObj an output from getEntrez on the seurat object
+#'
+#' @return list with markers and a list of compareClusterObject for plotting
+#'
+#' @examples
+#' enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="Cancer_2",groupBy_2="PFN1_GZMA_GZMB",groupID_2=c("hi_Low_Low","Low_Low_Low"),splitBy="orig.ident",splitID=NULL)
+#' out<-makeReactomeForMarkers(enrichment$markerLists[[1]],enrichment$hasEntrez)
+#'
+#' @export
+
+makeReactomeForMarkers<-function(findMarkersOut,hasEntrezObj){
+    findMarkersOut$gene<-rownames(findMarkersOut)
+    findMarkersOut %>% filter(p_val_adj<0.05) -> comb
+    scomb<-split(comb$gene,ifelse(comb$avg_logFC>0,"up","down"))
+    en<-mkEnt(scomb,hasEntrezObj)
+    oi<-reactomeClusts(en)
+return(oi)
+    }
+
 
 #' preprocCellPhone
 #'
@@ -505,7 +581,7 @@ countByCut<-function(seuratObj,geneName,expCut,groupBy,splitBy){
 #'
 #' @examples
 #' tab<-data.frame(gene=c("PFN1","GZMA","GZMB"),cuts=c(2,0,0))
-#' tmp<-annotateByCuts(seuratObj=integrated,geneTab=tab,groupBy="orig_final.ident",groupID="CD8",splitBy="orig.ident")
+#' integrated<-annotateByCuts(seuratObj=integrated,geneTab=tab,groupBy="orig_final.ident",groupID="CD8",splitBy="orig.ident")
 #'
 #' @export	 
 annotateByCuts<-function(seuratObj,geneTab,expCut,groupBy,groupID,splitBy,splitID=NULL){
@@ -513,7 +589,7 @@ annotateByCuts<-function(seuratObj,geneTab,expCut,groupBy,groupID,splitBy,splitI
     require(dplyr)
    library(tidyr)
    tmp<-FetchData(seuratObj,c(geneTab$gene))
-    for(i in geneTab$gene) tmp[,i]<-ifelse(tmp[,i]>geneTab[geneTab$gene==i,'cuts'],"hi",'Low')
+    for(i in geneTab$gene) tmp[,i]<-ifelse(tmp[,i]>geneTab[geneTab$gene==i,'cuts'],"hi",'low')
        colnames(tmp)<-paste0(colnames(tmp),'above',geneTab$cuts)
   nmd<-data.frame(tmp=apply(tmp,1,function(X) paste0(X,collapse="_")),anoComb=apply(FetchData(seuratObj,c(groupBy,splitBy)),1,function(X) paste0(X,collapse="_")))
   colnames(nmd)[1]=as.character(paste0(geneTab$gene,collapse="_"))
