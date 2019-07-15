@@ -18,7 +18,8 @@ list with markers and a list of compareClusterObject for plotting
 wrapper for output of FindClusters to reactome but will crap out if no significance
 }
 \examples{
-enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="Cancer_2",groupBy_2="PFN1_GZMA_GZMB",groupID_2=c("hi_Low_Low","Low_Low_Low"),splitBy="orig.ident",splitID=NULL)
-out<-makeReactomeForMarkers(enrichment$markerLists[[1]],enrichment$hasEntrez)
+ enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="CD8 T-cell 1",groupBy_2="orig.ident",groupID_2=c("ACITE","BCITE"),splitBy=NULL,splitID=NULL)
+out<-makeReactomeForMarkers(enrichment$markerLists,enrichment$hasEntrez)
+dotoplot(out)
 
 }

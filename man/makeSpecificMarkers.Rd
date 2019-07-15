@@ -4,10 +4,12 @@
 \alias{makeSpecificMarkers}
 \title{makeSpecificMarkers}
 \usage{
-makeSpecificMarkers(integrated, groupBy_1, groupID_1, groupBy_2, groupID_2,
-  splitBy, splitID = NULL)
+makeSpecificMarkers(seuratObj, groupBy_1, groupID_1, groupBy_2, groupID_2,
+  splitBy = NULL, splitID = NULL)
 }
 \arguments{
+\item{seuratObj}{the Seurat object}
+
 \item{groupBy_1}{the metadata to group by (like cell type)}
 
 \item{groupID_1}{a specific value of groupBy, required}
@@ -16,13 +18,11 @@ makeSpecificMarkers(integrated, groupBy_1, groupID_1, groupBy_2, groupID_2,
 
 \item{groupID_2}{two values of groupBy_2, required}
 
-\item{splitBy}{the metadata to split by (like experiment)}
+\item{splitBy}{optional; the metadata to split by (e.g. experiment), default NULL}
 
-\item{splitID}{a subset of splitBy if required, default NULL (all)}
+\item{splitID}{a subset of splitBy if splitBy is declared}
 
 \item{mkEntObj}{an output from  mkEnt or an element of splotDirection}
-
-\item{seuratObj}{the Seurat object}
 }
 \value{
 list with markers and a list of compareClusterObject for plotting
@@ -31,7 +31,6 @@ list with markers and a list of compareClusterObject for plotting
 wrapper for seurat to reactome but identifying two metadata columns and specifying a single 1vs1 comparison (splits by experiment)
 }
 \examples{
-enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="Cancer_2",groupBy_2="PFN1_GZMA_GZMB",groupID_2=c("hi_Low_Low","Low_Low_Low"),splitBy="orig.ident",splitID=NULL)
-for i in 1:length(enrichment$CP_result)) dotplot(enrichment$CP_result[[i]]) + ggtitle(names(enrichment$CP_result)[i])
+enrichment<-makeSpecificMarkers(integrated,groupBy_1="orig_final.ident",groupID_1="CD8 T-cell 1",groupBy_2="orig.ident",groupID_2=c("ACITE","BCITE"),splitBy=NULL,splitID=NULL)
 
 }
